@@ -68,7 +68,7 @@ for seed in seeds:
             elif bottom >= source and top < source+value:
                 print("FOUND: all in, simply add delta",delta)
                 seed[0] = bottom+delta
-                seed[1] = top+delta
+                seed[1] = top+deltqwqa
                 print("seed is now", seed)
                 break
             elif bottom >= source and top >= source+value:
