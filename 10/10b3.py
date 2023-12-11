@@ -55,79 +55,48 @@ def findFirstHeading(lines):
     return "impossible",-1,-1
 
         
-
-
-def mark_as_outside_clockwise(MAX_X, MAX_Y, painting, direction, x, y, currentField):
+def mark_as_outside_clockwise(MAX_X, MAX_Y, painting, direction, x, y, field):
+    print ("y:", y, "x:", x, "d: ", direction)
+    print("Current Field: ", field[y][x])
     if ( direction == 0 ):
-        if ( x > 0 ):            
-            if ( painting[y][x-1] != "P" ):
-                painting[y] = painting[y][:x-1] + "O" + painting[y][x:]
-        print("ok, special mark on abbiegung! currentField:", currentField)
-        print("y:", y, "x:", x)
-        # input()
-        if currentField == "7" or currentField == "F":    
-            if ( y > 0 ):
-                print("ok, special mark on abbiegung!")
-                if ( painting[y-1][x] != "P" ):
-                    painting[y-1] = painting[y-1][:x] + "O" + painting[y-1][x+1:]
+        if ( x > 0 ):
+            if ( field[y][x-1] != "P" ):
+                painting[y] = painting[y][:x-1] + "O" + painting[y][x:]            
     elif ( direction == 1 ):
         if ( y > 0 ):
-            if ( painting[y-1][x] != "P" ):
-                painting[y-1] = painting[y-1][:x] + "O" + painting[y-1][x+1:]
-        if currentField == "7" or currentField == "J":
-            if ( x < MAX_X-1 ):
-                if ( painting[y][x+1] != "P" ):
-                    painting[y] = painting[y][:x+1] + "O" + painting[y][x+2:]
+            if ( field[y-1][x] != "P" ):
+                painting[y-1] = painting[y-1][:x] + "O" + painting[y-1][x+1:]            
+
     elif ( direction == 2 ):
-        if ( x < MAX_X-1 ):
-            if ( painting[y][x+1] != "P" ):
-                painting[y] = painting[y][:x+1] + "O" + painting[y][x+2:]
-        if currentField == "J" or currentField == "L":
-            if ( y < MAX_Y-1 ):
-                if ( painting[y+1][x] != "P" ):
-                    painting[y+1] = painting[y+1][:x] + "O" + painting[y+1][x+1:]
+        for d in range(0,2):
+            if ( x+1 < MAX_X and y+d >= 0 and y+d < MAX_Y ):
+                if ( painting[y+d][x+1] != "P" ):
+                    painting[y+d] = painting[y+d][:x+1] + "O" + painting[y+d][x+2:]
     elif ( direction == 3 ):
-        if ( y < MAX_Y-1 ):
-            if ( painting[y+1][x] != "P" ):
-                painting[y+1] = painting[y+1][:x] + "O" + painting[y+1][x+1:]
-        if currentField == "L" or currentField == "F":
-            if ( x > 0 ):
-                if ( painting[y][x-1] != "P" ):
-                    painting[y] = painting[y][:x-1] + "O" + painting[y][x:]
+        for d in range(0,2):
+            if ( x+d < MAX_X and x+d > 0 and y+1 < MAX_Y  ):
+                if ( painting[y+1][x+d] != "P" ):
+                    painting[y+1] = painting[y+1][:x+d] + "O" + painting[y+1][x+d+1:]
+
 
 def mark_as_outside_anticlockwise(MAX_X, MAX_Y, field, direction, x, y, currentField):
     if ( direction == 0 ):
         if ( x < MAX_X-1 ):
             if ( field[y][x+1] != "P" ):
                 field[y] = field[y][:x+1] + "O" + field[y][x+2:]
-        if currentField == "7" or currentField == "F":
-            if ( y < MAX_Y-1 ):
-                if ( field[y+1][x] != "P" ):
-                    field[y+1] = field[y+1][:x] + "O" + field[y+1][x+1:]
     elif ( direction == 1 ):
         if ( y < MAX_Y-1 ):
             if ( field[y+1][x] != "P" ):
                 field[y+1] = field[y+1][:x] + "O" + field[y+1][x+1:]
-        if currentField == "7" or currentField == "J":
-            if ( x < MAX_X-1 ):
-                if ( painting[y][x+1] != "P" ):
-                    painting[y] = painting[y][:x+1] + "O" + painting[y][x+2:]
+
     elif ( direction == 2 ):
         if ( x > 0 ):
             if ( field[y][x-1] != "P" ):
                 field[y] = field[y][:x-1] + "O" + field[y][x:]
-        if currentField == "J" or currentField == "L":
-            if ( y < MAX_Y-1 ):
-                if ( painting[y+1][x] != "P" ):
-                    painting[y+1] = painting[y+1][:x] + "O" + painting[y+1][x+1:]
     elif ( direction == 3 ):
         if ( y > 0 ):
             if ( field[y-1][x] != "P" ):
                 field[y-1] = field[y-1][:x] + "O" + field[y-1][x+1:]
-        if currentField == "L" or currentField == "F":
-            if ( x > 0 ):
-                if ( painting[y][x-1] != "P" ):
-                    painting[y] = painting[y][:x-1] + "O" + painting[y][x:]
 
 
 def check_for_outside(MAX_X, MAX_Y, painting ):
@@ -135,12 +104,22 @@ def check_for_outside(MAX_X, MAX_Y, painting ):
         for x in range(MAX_X):
             # if any of the four fields around the current field is "O", then the current field is outside
             if painting[y][x] != "P" and painting[y][x] != "O":
-                for field in [(x-1,y), (x,y-1), (x+1,y), (x,y+1),(x-1,y-1), (x+1,y-1), (x+1,y+1), (x-1,y+1)]:
-                    if field[0] < 0 or field[1] < 0 or field[0] >= MAX_X or field[1] >= MAX_Y:
-                        continue
-                    if painting[field[1]][field[0]] == "O":
+                if ( x > 0 ):
+                    if ( painting[y][x-1] == "O" ):
                         painting[y] = painting[y][:x] + "O" + painting[y][x+1:]
-                        break
+                        continue
+                if ( y > 0 ):
+                    if ( painting[y-1][x] == "O" ):
+                        painting[y] = painting[y][:x] + "O" + painting[y][x+1:]
+                        continue
+                if ( x < MAX_X-1 ):
+                    if ( painting[y][x+1] == "O" ):
+                        painting[y] = painting[y][:x] + "O" + painting[y][x+1:]
+                        continue
+                if ( y < MAX_Y-1 ):
+                    if ( painting[y+1][x] == "O" ):
+                        painting[y] = painting[y][:x] + "O" + painting[y][x+1:]
+                        continue
 
 def count_all_outside_fields(MAX_X, MAX_Y, painting):
     outsideFields = 0
@@ -177,6 +156,7 @@ painting_anti_clockwise[y] = painting_anti_clockwise[y][:x] + "P" + painting_ant
 counter = 0
 path=[]
 while True:
+    print("X:", x, "Y:", y, "direction:", direction)
     if ( direction == 0 ):
         y -= 1
         nextChar = lines[y][x]
@@ -233,10 +213,16 @@ while True:
     
     fieldChar = lines[y][x]
     path.append(fieldChar)
-    print("counter:", counter, "direction:", direction, "x:", x, "y:", y, "fieldChar:", fieldChar)
     if ( fieldChar == "S" ):
-        print("found start again")
         break
+
+
+print("Counter: ", counter)
+
+for l in painting.values():
+    print(l)
+
+input()
 
 ################ first round ended
 
@@ -301,9 +287,16 @@ while True:
     # place a "O" on the painting field, on the left side of my path, as i 
     # walk through the maze clockwise - so on the left side, area cant be enclosed 
     # by the path. If there is a "P" on the left side, we do nothing
-    mark_as_outside_clockwise(MAX_X, MAX_Y, painting, direction, x, y, currentField)
-    mark_as_outside_anticlockwise(MAX_X, MAX_Y, painting_anti_clockwise, direction, x, y, currentField)
+    mark_as_outside_clockwise(MAX_X, MAX_Y, painting, direction, x, y, lines)
+    mark_as_outside_anticlockwise(MAX_X, MAX_Y, painting_anti_clockwise, direction, x, y, lines)
 
+    print("Clockwise")  
+    for l in painting.values():
+        print(l)
+    print("Anti Clockwise")
+    for l in painting_anti_clockwise.values():
+        print(l)
+    input()
     
     fieldChar = lines[y][x]
     path.append(fieldChar)

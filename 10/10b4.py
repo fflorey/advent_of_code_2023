@@ -1,19 +1,12 @@
-lines=[]
+lines={}
 with open("input.txt") as f:
     counter=0
     for line in f:
-        tuples=tuple(line.strip())
-        lines.append(tuples)
+        lines[counter] = line.strip()
         counter+=1
 
 MAX_X=len(lines[0])
 MAX_Y=counter
-
-def printLines(lines):
-    for line in lines:
-        for x in line:
-            print(x, end="")
-        print()
 
 def find_character_position(lines, character="S"):
     for y in range(len(lines)):
@@ -55,6 +48,53 @@ def findFirstHeading(lines):
                     return direction,x,y
     return "impossible",-1,-1
 
+def detectFieldsToOutside ( orig, image ):
+    # orig and image are to dictionaries with the same size
+    # orig and image are dictionaries which contains strings
+    for y in range(len(orig)):
+        counter_c1=0
+        counter_c2=0
+        out=True
+        for x, char in enumerate(orig[y]):
+            if image[y][x] == "P":
+                if char == 'L':
+                    counter_c1+=1
+                if char == 'F':
+                    counter_c2+=1
+                if char == 'J':
+                    counter_c1-=1
+                if char == '7':
+                    counter_c2-=1
+                if char == '|':
+                    out=not out
+            if image[y][x] != "P":
+                if counter_c1 != 0 or counter_c2 != 0:
+                    out=not out
+                    counter_c1=counter_c2=0
+                if out:
+                    image[y] = image[y][:x] + "O" + image[y][x+1:]
+                    counter_c1=counter_c2=0
+                else:
+                    image[y] = image[y][:x] + "I" + image[y][x+1:]
+                    counter_c1=counter_c2=0
+
+    return image
+
+def check_for_outside(MAX_X, MAX_Y, painting ):
+    found = True
+    while found:
+        found = False
+        for y in range(MAX_Y):
+            for x in range(MAX_X):
+                # if any of the four fields around the current field is "O", then the current field is outside
+                if painting[y][x] != "P" and painting[y][x] != "O":
+                    for field in [(x-1,y), (x,y-1), (x+1,y), (x,y+1),(x-1,y-1), (x+1,y-1), (x+1,y+1), (x-1,y+1)]:
+                        if field[0] < 0 or field[1] < 0 or field[0] >= MAX_X or field[1] >= MAX_Y:
+                            continue
+                        if painting[field[1]][field[0]] == "O":
+                            found = True
+                            painting[y] = painting[y][:x] + "O" + painting[y][x+1:]
+                            break
 
 def mark_all_edge_fields_as_outside(MAX_X, MAX_Y, painting):
     for y in range(MAX_Y):
@@ -62,12 +102,9 @@ def mark_all_edge_fields_as_outside(MAX_X, MAX_Y, painting):
             if ( x == 0 or y == 0 or x == MAX_X-1 or y == MAX_Y-1 ):
                 if painting[y][x] != "P":
                     painting[y] = painting[y][:x] + "O" + painting[y][x+1:]
-                    print("x:", x, "y:", y, "painting[y][x]:", painting[y][x])
 
-mark_all_edge_fields_as_outside(MAX_X, MAX_Y, lines)
 print(findFirstHeading(lines))
 direction,x,y = findFirstHeading(lines)
-exit(0)
 print("Direction:", direction, "x:", x, "y:", y)
 print("lines[y][x]:", lines[y][x])
 
