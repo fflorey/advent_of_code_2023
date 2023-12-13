@@ -60,11 +60,18 @@ def check_valid(line, group_sizes):
 result = 0
 total=0
 for key, line in enumerate(lines):
-    print ("Check Line:", line, "with group sizes:", numbers[key])
+    # print("now part A")
+    print ("Line:", line, "with group sizes:", numbers[key])
+    line = line + "."
+    line = line * 3
+    numbers[key] = numbers[key] * 3
+    # print ("Check Line:", line, "with group sizes:", numbers[key])
     group_sizes = numbers[key]
     number_questionmarks = line.count('?')
+    # print("Number of questionmarks:", number_questionmarks)
     max = 2 ** number_questionmarks
-
+    # print("Check max:", max)
+    correct_results = []
     for i in range(max):
         possible_arrangement = bin(i)[2:].zfill(number_questionmarks) 
         new_line = replace_questionmarks(line, possible_arrangement)
@@ -72,11 +79,12 @@ for key, line in enumerate(lines):
         # check if new_line is valid
         if check_valid(new_line, group_sizes):
             total += 1
-            print("VALID! ", new_line, "total:", total)
-            print("The correct arrangement is:", possible_arrangement)
+            # print("VALID! ", new_line, "total:", total)
+            # print("The correct arrangement is:", possible_arrangement)
+            correct_results.append(i)
+    print ("Found in total", total, "valid arrangements")
+    total = 0
 
-        # print i in binary, with number_questionmarks digits
-    result+=total
-    total=0
+
 
 print("Total: ", result)
